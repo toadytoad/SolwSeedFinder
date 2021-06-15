@@ -1,0 +1,8 @@
+SOLW_V4/SOLW_V4_Pickle.java
+ SOLW_V4.SOLW_V4_Pickle
+SolwSeedFinding/SOLW_V2.java
+ SolwSeedFinding.SOLW_V2
+Solw_V3/SOLW_V3_Desert.java
+ Solw_V3.SOLW_V3_Desert
+SOLW_V5_Outpost/SOLW_V5.java
+ SOLW_V5_Outpost.SOLW_V5
