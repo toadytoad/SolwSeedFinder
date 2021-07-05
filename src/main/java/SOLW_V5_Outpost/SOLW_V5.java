@@ -76,7 +76,6 @@ public class SOLW_V5 {
                 while (worldSeeds.hasNext()) {
                     worldSeed = worldSeeds.next();
                     int index = 0;
-
                     while (closeStructuresArr[0][index]!=null) {
                         if (areStructuresPossible(closeStructuresArr[0][index], closeStructuresArr[1][index], worldSeed)) {
                             numOfPossibleStructs++;
@@ -84,7 +83,7 @@ public class SOLW_V5 {
                                 System.out.println(worldSeed);
                                 seedsFound++;
                             }
-                            if (numOfPossibleStructs==10) System.out.println("Example seed: " + worldSeed);
+                            if (numOfPossibleStructs==10) System.out.println("Example seed: " + worldSeed + " with PO: " + closeStructuresArr[1][index] + " and BT: " + closeStructuresArr[0][index]);
                         }
                         index++;
                     }

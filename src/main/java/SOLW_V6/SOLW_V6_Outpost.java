@@ -43,7 +43,7 @@ public class SOLW_V6_Outpost {
         int pillagerOutpostIndex = 0;
         int closeStructuresIndex = 0;
         while (true) {
-            //System.out.println("Searching structure seed: " + structureSeed);
+            System.out.print(",");
             for (int x = -16; x < 16; x++) {
                 for (int z = -16; z < 16; z++) {
                     CPos pos = buriedTreasure.getInRegion(structureSeed, x, z, cr);
@@ -78,11 +78,14 @@ public class SOLW_V6_Outpost {
                 }
             }
             SeedIterator seedIterator = WorldSeed.getSisterSeeds(structureSeed);
-            while (seedIterator.hasNext()) {
+            int seen = 0;
+            boolean addNoted = false;
+            while (seedIterator.hasNext()&&seen<10) {
                 long worldSeed = seedIterator.next();
                 int index = 0;
                 int tempBiome;
                 OverworldBiomeSource biomeSource = new OverworldBiomeSource(MCVersion.v1_17, worldSeed);
+                addNoted = false;
                 while (closeStructures[0][index] != null) {
                     if (buriedTreasure.canSpawn(closeStructures[1][index].toChunkPos(), biomeSource) && pillagerOutpost.canSpawn(closeStructures[0][index].toChunkPos(), biomeSource)) {
                         //System.out.println("Found world with existing structures: " + worldSeed);
@@ -91,8 +94,13 @@ public class SOLW_V6_Outpost {
                                 tempBiome = biomeSource.getBiome(x, 0, z).getId();
                                 if (tempBiome == 44 || tempBiome == 47) {
                                     System.out.println("Found seed: " + worldSeed);
+                                    addNoted = true;
                                 }
                             }
+                        }
+                        if (addNoted==false){
+                            seen++;
+                            System.out.print("@");
                         }
                     }
                     index++;
