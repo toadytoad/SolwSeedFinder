@@ -8,3 +8,7 @@ SolwSeedFinding/SOLW_V2.java
  SolwSeedFinding.SOLW_V2
 SOLW_V6/SOLW_V6_Outpost.java
  SOLW_V6.SOLW_V6_Outpost
+SOLW_V7/NearStructs.java
+ SOLW_V7.NearStructs
+SOLW_V7/SeedFinder.java
+ SOLW_V7.SeedFinder
