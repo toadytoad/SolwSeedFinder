@@ -127,6 +127,7 @@ public class SeedFinder implements Runnable{
                 if (dist<48) { //checks for distance between structures
                     nearStructs[closeStructuresIndex] = new NearStructs(pillagerOutposts[j], buriedTreasures[i], dist); //appends a new class to nearStructs
                     closeStructuresIndex++;
+                    System.out.println(structureSeed+" "+pillagerOutposts[j]+" "+buriedTreasures[i]+"!");
                 }
             }
         }
@@ -174,10 +175,9 @@ public class SeedFinder implements Runnable{
         BuriedTreasureGenerator generator=new BuriedTreasureGenerator(mcVersion);
         generator.generate(null, pos, new ChunkRand());
         List<ChestContent> chestContents=buriedTreasure.getLoot(structureSeed, generator, new ChunkRand(), false);
-        if (chestContents.get(0).containsAtLeast(TNT, 6)){
+        if (chestContents.get(0).containsAtLeast(TNT, 4)){
             if(chestContents.get(0).containsAtLeast(IRON_INGOT, 2)){
                 if(chestContents.get(0).containsAtLeast(IRON_INGOT, 4)||chestContents.get(0).containsAtLeast(GOLD_INGOT, 2)){
-                    System.out.println("Buried Treasure with loot in structureseed: " + structureSeed + " at " + pos);
                     return true;
                 }
             }
