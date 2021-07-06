@@ -1,34 +1,24 @@
 package SOLW_V7;
 
 
-import kaptainwutax.biomeutils.biome.Biome;
 import kaptainwutax.biomeutils.source.OverworldBiomeSource;
 import kaptainwutax.featureutils.loot.ChestContent;
-import kaptainwutax.featureutils.loot.item.Item;
-import kaptainwutax.featureutils.loot.item.ItemStack;
-import kaptainwutax.featureutils.structure.*;
+import kaptainwutax.featureutils.structure.BuriedTreasure;
+import kaptainwutax.featureutils.structure.PillagerOutpost;
 import kaptainwutax.featureutils.structure.generator.Generator;
 import kaptainwutax.featureutils.structure.generator.structure.BuriedTreasureGenerator;
 import kaptainwutax.mcutils.rand.ChunkRand;
 import kaptainwutax.mcutils.rand.seed.WorldSeed;
 import kaptainwutax.mcutils.util.data.Pair;
 import kaptainwutax.mcutils.util.data.SeedIterator;
-import kaptainwutax.mcutils.util.math.DistanceMetric;
 import kaptainwutax.mcutils.util.pos.BPos;
 import kaptainwutax.mcutils.util.pos.CPos;
-import kaptainwutax.mcutils.util.pos.RPos;
 import kaptainwutax.mcutils.version.MCVersion;
-import kaptainwutax.mcutils.util.data.SeedIterator;
-import kaptainwutax.seedutils.rand.Rand;
 import kaptainwutax.terrainutils.TerrainGenerator;
 
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
 
-import static java.lang.Math.floor;
-import static kaptainwutax.featureutils.loot.item.Items.TNT;
-import static kaptainwutax.featureutils.loot.item.Items.IRON_INGOT;
-import static kaptainwutax.featureutils.loot.item.Items.GOLD_INGOT;
+import static kaptainwutax.featureutils.loot.item.Items.*;
 
 public class SeedFinder implements Runnable{
     long structureSeed;
@@ -115,7 +105,6 @@ public class SeedFinder implements Runnable{
                 if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
                     pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
                     //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
-                    pillagerOutpostIndex++;
                 }
             }
         } catch(Exception e){
@@ -177,9 +166,7 @@ public class SeedFinder implements Runnable{
         List<ChestContent> chestContents=buriedTreasure.getLoot(structureSeed, generator, new ChunkRand(), false);
         if (chestContents.get(0).containsAtLeast(TNT, 4)){
             if(chestContents.get(0).containsAtLeast(IRON_INGOT, 2)){
-                if(chestContents.get(0).containsAtLeast(IRON_INGOT, 4)||chestContents.get(0).containsAtLeast(GOLD_INGOT, 2)){
-                    return true;
-                }
+                return chestContents.get(0).containsAtLeast(IRON_INGOT, 4) || chestContents.get(0).containsAtLeast(GOLD_INGOT, 2);
             }
         }
         return false;
