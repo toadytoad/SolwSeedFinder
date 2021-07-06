@@ -33,7 +33,7 @@ public class SeedFinder implements Runnable{
         BPos[] pillagerOutposts = new BPos[4]; //stores the values of the pillager outposts in 3 regions
         NearStructs[] nearStructs = new NearStructs[256]; //NearStructs class which stores the coordinates of the outpost, buried treasure, and distance
         ChunkRand cr = new ChunkRand(); //initializes a chunk randomizer for wutax lib
-        Generator generator = new Generator(MCVersion.v1_16_1) {
+        Generator generator = new Generator(MCVersion.v1_17) {
             @Override
             public boolean generate(TerrainGenerator generator, int chunkX, int chunkZ, ChunkRand rand) {
                 return false;
