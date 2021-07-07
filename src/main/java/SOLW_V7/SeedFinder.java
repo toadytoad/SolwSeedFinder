@@ -118,7 +118,7 @@ public class SeedFinder implements Runnable{
                 if (dist<48) { //checks for distance between structures
                     nearStructs[closeStructuresIndex] = new NearStructs(pillagerOutposts[j], buriedTreasures[i], dist); //appends a new class to nearStructs
                     closeStructuresIndex++;
-                    System.out.println("!");
+                    //System.out.println("!");
                 }
             }
         }
@@ -150,7 +150,7 @@ public class SeedFinder implements Runnable{
                                         foundBiome = true;
 
                                         csv.append(worldSeed + "," + nearStructs[index].getOutpost().getX() + "," + nearStructs[index].getOutpost().getZ() + "," + treasureX + "," + treasureZ + "\n");
-                                        System.out.println("Found seed: " + worldSeed);
+                                        //System.out.println("Found seed: " + worldSeed);
                                     }
                                     if (foundBiome) {
                                         break;
@@ -165,7 +165,7 @@ public class SeedFinder implements Runnable{
                     }
                 }
 
-                System.out.println("reached flushing");
+                //System.out.println("reached flushing");
                 csv.flush();
                 csv.close();
             } catch (Exception e) {
