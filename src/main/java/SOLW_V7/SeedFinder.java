@@ -15,6 +15,11 @@ import kaptainwutax.mcutils.util.pos.BPos;
 import kaptainwutax.mcutils.util.pos.CPos;
 import kaptainwutax.mcutils.version.MCVersion;
 import kaptainwutax.terrainutils.TerrainGenerator;
+import net.minecraft.world.chunk.Chunk;
+
+import static SOLW_V7.Main.cr;
+import static SOLW_V7.Main.buriedTreasure;
+import static SOLW_V7.Main.pillagerOutpost;
 import static kaptainwutax.featureutils.loot.item.Items.*;
 
 import java.io.FileWriter;
@@ -23,7 +28,6 @@ import java.util.List;
 
 public class SeedFinder implements Runnable{
     long structureSeed;
-
     public SeedFinder(long structureSeed) {
         this.structureSeed = structureSeed;
     }
@@ -33,31 +37,6 @@ public class SeedFinder implements Runnable{
         CPos[] buriedTreasures = new CPos[256]; //stores the values of the buried treasures in each of the 256 chunks of a structure seed
         BPos[] pillagerOutposts = new BPos[4]; //stores the values of the pillager outposts in 3 regions
         NearStructs[] nearStructs = new NearStructs[256]; //NearStructs class which stores the coordinates of the outpost, buried treasure, and distance
-        ChunkRand cr = new ChunkRand(); //initializes a chunk randomizer for wutax lib
-        Generator generator = new Generator(MCVersion.v1_17) {
-            @Override
-            public boolean generate(TerrainGenerator generator, int chunkX, int chunkZ, ChunkRand rand) {
-                return false;
-            }
-
-            @Override
-            public List<Pair<ILootType, BPos>> getChestsPos() {
-                return null;
-            }
-
-            @Override
-            public List<Pair<ILootType, BPos>> getLootPos() {
-                return null;
-            }
-
-            @Override
-            public ILootType[] getLootTypes() {
-                return new ILootType[0];
-            }
-        };
-        PillagerOutpost pillagerOutpost = new PillagerOutpost(MCVersion.v1_17); //wutax outpost object
-        BuriedTreasure buriedTreasure = new BuriedTreasure(MCVersion.v1_17); //wutax buried treasure object
-
         int buriedTreasureIndex = 0; //indices for arrays
         int pillagerOutpostIndex = 0;
         int closeStructuresIndex = 0;
@@ -68,7 +47,7 @@ public class SeedFinder implements Runnable{
                 CPos pos = buriedTreasure.getInRegion(structureSeed, x, z, cr); //gets the buriedTreasure in the region
                 if (pos != null) { //checks if the buriedTreasure might spawn
                     try {
-                        if (lootCheck(MCVersion.v1_17, structureSeed, pos)) {
+                        if (lootCheck(MCVersion.v1_17, structureSeed, pos, cr)) {
                             buriedTreasures[buriedTreasureIndex] = pos; //appends the coordinates to the index
                             //System.out.print(buriedTreasures[buriedTreasureIndex] + ", ");
                             buriedTreasureIndex++; //increases the index
@@ -79,38 +58,17 @@ public class SeedFinder implements Runnable{
                 }
             }
         }
-        try {
-            int x = -1;
-            int z = 0;
-            CPos pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
-            if (pos != null) {
-                if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
-                    pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
-                    //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
-                    pillagerOutpostIndex++;
+        for (int x = -1; x<1;x++) {
+            for (int z = -1; x<1; x++) {
+                CPos pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
+                if (pos != null) {
+                    if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
+                        pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
+                        //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
+                        pillagerOutpostIndex++;
+                    }
                 }
             }
-            x = 0;
-            z = -1;
-            pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
-            if (pos != null) {
-                if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
-                    pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
-                    //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
-                    pillagerOutpostIndex++;
-                }
-            }
-            x = 0;
-            z = 0;
-            pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
-            if (pos != null) {
-                if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
-                    pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
-                    //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
-                }
-            }
-        } catch(Exception e){
-            System.out.println("Caught an error");
         }
         for (int i = 0; buriedTreasures[i] != null; i++) { //sets an index for treasure
             for (int j = 0; pillagerOutposts[j] != null; j++) { //sets and index for outposts
@@ -123,15 +81,10 @@ public class SeedFinder implements Runnable{
             }
         }
         int indexMax = 0;
-        for (int i = 0; nearStructs[i]!=null; i++){
-            if (!lootCheck(MCVersion.v1_17, structureSeed, nearStructs[i].getTreasure())){
-                nearStructs[i]=null;
-            }
-        }
         FileWriter csv;
         if (nearStructs[0]!=null) {
             try {
-                csv = new FileWriter("C:\\Users\\__toad_\\IdeaProjects\\SolwSeedFinder\\src\\main\\java\\SOLW_V7\\seeds.csv", true);
+                csv = new FileWriter(".\\seeds.csv", true);
                 SeedIterator seedIterator = WorldSeed.getSisterSeeds(structureSeed);
                 while (seedIterator.hasNext()) {
                     long worldSeed = seedIterator.next();
@@ -174,12 +127,11 @@ public class SeedFinder implements Runnable{
         }
         Main.StartNext();
     }
-    public boolean lootCheck(MCVersion mcVersion, Long structureSeed, CPos pos){
-        ChunkRand rand = new ChunkRand();
+    public boolean lootCheck(MCVersion mcVersion, Long structureSeed, CPos pos, ChunkRand rand){
         BuriedTreasure buriedTreasure = new BuriedTreasure(mcVersion);
         BuriedTreasureGenerator generator=new BuriedTreasureGenerator(mcVersion);
-        generator.generate(null, pos, new ChunkRand());
-        List<ChestContent> chestContents=buriedTreasure.getLoot(structureSeed, generator, new ChunkRand(), false);
+        generator.generate(null, pos, rand);
+        List<ChestContent> chestContents=buriedTreasure.getLoot(structureSeed, generator, rand, false);
         if (chestContents.get(0).containsAtLeast(TNT, 8)){
             if(chestContents.get(0).containsAtLeast(IRON_INGOT, 2)){
                 return chestContents.get(0).containsAtLeast(IRON_INGOT, 4) || chestContents.get(0).containsAtLeast(GOLD_INGOT, 2);
