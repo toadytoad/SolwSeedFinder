@@ -4,7 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadLocalRandom;
 public class Main {
-    static long StructureSeed = 0;
+    static long StructureSeed = 194736563634066L;
     static ThreadPoolExecutor pool;
     static Object lock = new Object();
 
