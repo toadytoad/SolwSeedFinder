@@ -4,27 +4,19 @@ package SOLW_V7;
 import kaptainwutax.biomeutils.source.OverworldBiomeSource;
 import kaptainwutax.featureutils.loot.ChestContent;
 import kaptainwutax.featureutils.structure.BuriedTreasure;
-import kaptainwutax.featureutils.structure.PillagerOutpost;
-import kaptainwutax.featureutils.structure.generator.Generator;
 import kaptainwutax.featureutils.structure.generator.structure.BuriedTreasureGenerator;
 import kaptainwutax.mcutils.rand.ChunkRand;
 import kaptainwutax.mcutils.rand.seed.WorldSeed;
-import kaptainwutax.mcutils.util.data.Pair;
 import kaptainwutax.mcutils.util.data.SeedIterator;
 import kaptainwutax.mcutils.util.pos.BPos;
 import kaptainwutax.mcutils.util.pos.CPos;
 import kaptainwutax.mcutils.version.MCVersion;
-import kaptainwutax.terrainutils.TerrainGenerator;
-import net.minecraft.world.chunk.Chunk;
-
-import static SOLW_V7.Main.cr;
-import static SOLW_V7.Main.buriedTreasure;
-import static SOLW_V7.Main.pillagerOutpost;
-import static kaptainwutax.featureutils.loot.item.Items.*;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
+
+import static SOLW_V7.Main.*;
+import static kaptainwutax.featureutils.loot.item.Items.*;
 
 public class SeedFinder implements Runnable{
     long structureSeed;
