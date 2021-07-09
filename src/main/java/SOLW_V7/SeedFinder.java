@@ -69,8 +69,6 @@ public class SeedFinder implements Runnable{
                 }
             }
         }
-
-        int indexMax = 0;
         FileWriter csv;
         if (nearStructs[0]!=null) {
             try {
@@ -78,12 +76,12 @@ public class SeedFinder implements Runnable{
                 SeedIterator seedIterator = WorldSeed.getSisterSeeds(structureSeed);
                 while (seedIterator.hasNext()) {
                     long worldSeed = seedIterator.next();
-                    int tempBiome;
                     OverworldBiomeSource biomeSource = new OverworldBiomeSource(MCVersion.v1_17, worldSeed);
-                    boolean foundBiome = false;
                     int index = 0;
                     while (nearStructs[index] != null) {
+                        System.out.println("Initing spawnability checks");
                         if (pillagerOutpost.canSpawn(nearStructs[index].getOutpost().toChunkPos(), biomeSource) && buriedTreasure.canSpawn(nearStructs[index].getTreasure(), biomeSource)) {
+                            System.out.println("Found spawnability");
                             int treasureZ = nearStructs[index].getTreasure().toBlockPos().getZ()+9;
                             int treasureX = nearStructs[index].getTreasure().toBlockPos().getX()+9;
                             int outpostX = nearStructs[index].getOutpost().getX();
@@ -92,6 +90,7 @@ public class SeedFinder implements Runnable{
                             Box pickleBox = new Box(treasureX-48, 36, treasureZ-48,treasureX+48, 63, treasureZ+48);
                             Box woolBox = new Box(outpostX-48, 63, outpostZ-48,outpostX+48, 100, outpostZ+48);
                             BPos spawn = biomeSource.getSpawnPoint();
+                            System.out.println("Initing lvl 8 checks");
                             if (checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox)>64) {
                                 if (checker.getBlockCountInBox(Blocks.WHITE_WOOL,woolBox)>64) {
                                     if(spawn.getX()<treasureX+32&&spawn.getX()>treasureX-32&&spawn.getZ()<treasureZ+32&&spawn.getZ()>treasureZ-32) {
