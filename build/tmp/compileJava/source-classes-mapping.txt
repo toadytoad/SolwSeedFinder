@@ -8,10 +8,10 @@ SolwSeedFinding/SOLW_V2.java
  SolwSeedFinding.SOLW_V2
 SOLW_V6/SOLW_V6_Outpost.java
  SOLW_V6.SOLW_V6_Outpost
-SOLW_V7/NearStructs.java
- SOLW_V7.NearStructs
 Sisterseeds/SisterSeedChecker.java
  Sisterseeds.SisterSeedChecker
+SOLW_V7/NearStructs.java
+ SOLW_V7.NearStructs
 SOLW_V7/Main.java
  SOLW_V7.Main
 SOLW_V7/SeedFinder.java

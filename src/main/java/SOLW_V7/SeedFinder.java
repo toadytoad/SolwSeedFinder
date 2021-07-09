@@ -1,6 +1,9 @@
 package SOLW_V7;
 
 
+import kaptainwutax.biomeutils.biome.Biome;
+import kaptainwutax.biomeutils.biome.Biomes;
+import kaptainwutax.biomeutils.layer.water.OceanTemperatureLayer;
 import kaptainwutax.biomeutils.source.OverworldBiomeSource;
 import kaptainwutax.featureutils.loot.ChestContent;
 import kaptainwutax.featureutils.structure.BuriedTreasure;
@@ -11,9 +14,14 @@ import kaptainwutax.mcutils.util.data.SeedIterator;
 import kaptainwutax.mcutils.util.pos.BPos;
 import kaptainwutax.mcutils.util.pos.CPos;
 import kaptainwutax.mcutils.version.MCVersion;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.Box;
+import nl.jellejurre.seedchecker.SeedChecker;
+import nl.jellejurre.seedchecker.SeedCheckerDimension;
 
 import java.io.FileWriter;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static SOLW_V7.Main.*;
 import static kaptainwutax.featureutils.loot.item.Items.*;
@@ -27,51 +35,41 @@ public class SeedFinder implements Runnable{
     @Override
     public void run() {
         CPos[] buriedTreasures = new CPos[256]; //stores the values of the buried treasures in each of the 256 chunks of a structure seed
-        BPos[] pillagerOutposts = new BPos[4]; //stores the values of the pillager outposts in 3 regions
-        NearStructs[] nearStructs = new NearStructs[256]; //NearStructs class which stores the coordinates of the outpost, buried treasure, and distance
+        CPos[] pillagerOutposts = new CPos[4]; //stores the values of the pillager outposts in 3 regions
+        NearStructs[] nearStructs = new NearStructs[100]; //NearStructs class which stores the coordinates of the outpost, buried treasure, and distance
         int buriedTreasureIndex = 0; //indices for arrays
         int pillagerOutpostIndex = 0;
         int closeStructuresIndex = 0;
 
         //System.out.print(","); //notifies that the program has started a new structure seed
-        for (int x = -16; x < 16; x++) {
-            for (int z = -16; z < 16; z++) { //initial iterators for buried treasures
-                CPos pos = buriedTreasure.getInRegion(structureSeed, x, z, cr); //gets the buriedTreasure in the region
-                if (pos != null) { //checks if the buriedTreasure might spawn
-                    try {
-                        if (lootCheck(MCVersion.v1_17, structureSeed, pos, cr)) {
-                            buriedTreasures[buriedTreasureIndex] = pos; //appends the coordinates to the index
-                            //System.out.print(buriedTreasures[buriedTreasureIndex] + ", ");
-                            buriedTreasureIndex++; //increases the index
-                        }
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
         for (int x = -1; x<1;x++) {
             for (int z = -1; x<1; x++) {
                 CPos pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
                 if (pos != null) {
                     if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
-                        pillagerOutposts[pillagerOutpostIndex] = pos.toBlockPos();
+                        pillagerOutposts[pillagerOutpostIndex] = pos;
                         //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
                         pillagerOutpostIndex++;
                     }
                 }
             }
         }
-        for (int i = 0; buriedTreasures[i] != null; i++) { //sets an index for treasure
-            for (int j = 0; pillagerOutposts[j] != null; j++) { //sets and index for outposts
-                long dist = Math.round(Math.sqrt((pillagerOutposts[j].getX() - (buriedTreasures[i].getX()*16+9)) * (pillagerOutposts[j].getX() - (buriedTreasures[i].getX()*16+9)) + (pillagerOutposts[j].getZ() - (buriedTreasures[i].getZ()*16+9)) * (pillagerOutposts[j].getZ() - (buriedTreasures[i].getZ()*16+9))));
-                if (dist<48) { //checks for distance between structures
-                    nearStructs[closeStructuresIndex] = new NearStructs(pillagerOutposts[j], buriedTreasures[i], dist); //appends a new class to nearStructs
-                    closeStructuresIndex++;
-                    //System.out.println("!");
+        for (int index = 0; pillagerOutposts[index]!=null; index++){
+            for (int x = pillagerOutposts[index].getX()-2; x<pillagerOutposts[index].getX()+3; x++){
+                for (int z = pillagerOutposts[index].getZ()-2; z<pillagerOutposts[index].getZ()+3; z++){
+                    CPos pos = buriedTreasure.getInRegion(structureSeed,x,z,cr);
+                    if (pos!=null){
+                        if(lootCheck(MCVersion.v1_17,structureSeed,pos,cr)){
+                            if(isCorrectTemp(structureSeed,pos.getX()*16+9,pos.getZ()*16+9, (n)->n==44||n==47)) {
+                                nearStructs[closeStructuresIndex] = new NearStructs(pillagerOutposts[index].toBlockPos(), pos);
+                                closeStructuresIndex++;
+                            }
+                        }
+                    }
                 }
             }
         }
+
         int indexMax = 0;
         FileWriter csv;
         if (nearStructs[0]!=null) {
@@ -86,25 +84,25 @@ public class SeedFinder implements Runnable{
                     int index = 0;
                     while (nearStructs[index] != null) {
                         if (pillagerOutpost.canSpawn(nearStructs[index].getOutpost().toChunkPos(), biomeSource) && buriedTreasure.canSpawn(nearStructs[index].getTreasure(), biomeSource)) {
-                            int treasureX = nearStructs[index].getTreasure().toBlockPos().getX()+9;
                             int treasureZ = nearStructs[index].getTreasure().toBlockPos().getZ()+9;
-                            for (int x = treasureX - 48; x < treasureX + 49; x += 16) {
-                                for (int z = treasureZ - 48; z < treasureZ + 49; z += 16) {
-                                    tempBiome = biomeSource.getBiome(x, 0, z).getId();
-                                    if (tempBiome == 44 || tempBiome == 47) {
-                                        foundBiome = true;
-
-                                        csv.append(worldSeed + "," + nearStructs[index].getOutpost().getX() + "," + nearStructs[index].getOutpost().getZ() + "," + treasureX + "," + treasureZ + "\n");
-                                        //System.out.println("Found seed: " + worldSeed);
+                            int treasureX = nearStructs[index].getTreasure().toBlockPos().getX()+9;
+                            int outpostX = nearStructs[index].getOutpost().getX();
+                            int outpostZ = nearStructs[index].getOutpost().getZ();
+                            SeedChecker checker = new SeedChecker(worldSeed, 8, SeedCheckerDimension.OVERWORLD);
+                            Box pickleBox = new Box(treasureX-48, 36, treasureZ-48,treasureX+48, 63, treasureZ+48);
+                            Box woolBox = new Box(outpostX-48, 63, outpostZ-48,outpostX+48, 100, outpostZ+48);
+                            BPos spawn = biomeSource.getSpawnPoint();
+                            if (checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox)>64) {
+                                if (checker.getBlockCountInBox(Blocks.WHITE_WOOL,woolBox)>64) {
+                                    if(spawn.getX()<treasureX+32&&spawn.getX()>treasureX-32&&spawn.getZ()<treasureZ+32&&spawn.getZ()>treasureZ-32) {
+                                        System.out.println("Seed: "+worldSeed);
+                                        csv.append(worldSeed + "," + nearStructs[index].getOutpost().getX() + "," + nearStructs[index].getOutpost().getZ() + "," + nearStructs[index].getTreasure().toBlockPos().getX() + 9 + "," + nearStructs[index].getTreasure().toBlockPos().getZ() + 9 + "\n");
                                     }
-                                    if (foundBiome) {
-                                        break;
-                                    }
+                                    System.out.println("Didn't find spawn");
                                 }
-                                if (foundBiome) {
-                                    break;
-                                }
+                                System.out.println("Didn't find wool");
                             }
+                            System.out.println("Didn't find pickles");
                         }
                         index++;
                     }
@@ -130,6 +128,75 @@ public class SeedFinder implements Runnable{
             }
         }
         return false;
+    }
+    //special thanks to Neil for making this function for me!!! Full credit goes to him. (edited by me to use ids)
+    public boolean isCorrectTemp(long structureSeed,int x, int z, Predicate<Integer> biomePredicate){
+        int lowerX=x<0?256-x&0xff:x&0xff;
+        int lowerZ=z<0?256-z&0xff:z&0xff;
+        OceanTemperatureLayer layer=new OceanTemperatureLayer(MCVersion.v1_17,structureSeed,2);
+        boolean upX=lowerX>228;
+        boolean upZ=lowerZ>228;
+        boolean lwX=lowerX<32;
+        boolean lwZ=lowerZ<32;
+        boolean res;
+        if (lwX){
+            // square -1,0
+            if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 -1 ,0,z/256 )).getId())){
+                return true;
+            }
+            if (lwZ){
+                // square -1,-1
+                // square 0,-1
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 -1 ,0,z/256 -1)).getId())){
+                    return true;
+                }
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256  ,0,z/256-1 )).getId())){
+                    return true;
+                }
+            }else if (upZ){
+                // square -1, 1
+                // square 0, +1
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 -1 ,0,z/256 +1)).getId())){
+                    return true;
+                }
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256  ,0,z/256+1 )).getId())){
+                    return true;
+                }
+            }
+        }else if (upX){
+            // square 1,0
+            if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 +1 ,0,z/256 )).getId())){
+                return true;
+            }
+            if (lwZ){
+                // square 1,-1
+                // square 0,-1
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 +1 ,0,z/256 -1)).getId())){
+                    return true;
+                }
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256  ,0,z/256-1 )).getId())){
+                    return true;
+                }
+            }else if (upZ){
+                // square 1, 1
+                // square 0, +1
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256 +1 ,0,z/256 +1)).getId())){
+                    return true;
+                }
+                if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256  ,0,z/256+1 )).getId())){
+                    return true;
+                }
+            }
+        }else if (lwZ){
+            // square 0,-1
+            return biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x / 256, 0, z / 256 - 1)).getId());
+        }else if (upZ){
+            // square 0,1
+            if (biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x/256  ,0,z/256 +1)).getId())){
+                return true;
+            }
+        }
+        return  biomePredicate.test(Biomes.REGISTRY.get(layer.sample(x / 256, 0, z / 256 )).getId());
     }
 
 }
