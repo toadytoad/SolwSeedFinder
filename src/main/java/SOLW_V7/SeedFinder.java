@@ -79,35 +79,39 @@ public class SeedFinder implements Runnable{
                     OverworldBiomeSource biomeSource = new OverworldBiomeSource(MCVersion.v1_17, worldSeed);
                     int index = 0;
                     while (nearStructs[index] != null) {
-                        System.out.println("Initing spawnability checks");
+                        //System.out.println("Initing spawnability checks");
                         if (pillagerOutpost.canSpawn(nearStructs[index].getOutpost().toChunkPos(), biomeSource) && buriedTreasure.canSpawn(nearStructs[index].getTreasure(), biomeSource)) {
-                            System.out.println("Found spawnability");
+                            //System.out.println("Found spawnability");
                             int treasureZ = nearStructs[index].getTreasure().toBlockPos().getZ()+9;
                             int treasureX = nearStructs[index].getTreasure().toBlockPos().getX()+9;
                             int outpostX = nearStructs[index].getOutpost().getX();
                             int outpostZ = nearStructs[index].getOutpost().getZ();
                             SeedChecker checker = new SeedChecker(worldSeed, 8, SeedCheckerDimension.OVERWORLD);
-                            Box pickleBox = new Box(treasureX-48, 36, treasureZ-48,treasureX+48, 63, treasureZ+48);
+                            Box pickleBox = new Box(treasureX-72, 36, treasureZ-72,treasureX+72, 63, treasureZ+72);
                             Box woolBox = new Box(outpostX-48, 63, outpostZ-48,outpostX+48, 100, outpostZ+48);
                             BPos spawn = biomeSource.getSpawnPoint();
-                            System.out.println("Initing lvl 8 checks");
-                            if (checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox)>64) {
-                                if (checker.getBlockCountInBox(Blocks.WHITE_WOOL,woolBox)>64) {
-                                    if(spawn.getX()<treasureX+32&&spawn.getX()>treasureX-32&&spawn.getZ()<treasureZ+32&&spawn.getZ()>treasureZ-32) {
+                            //System.out.println("Initing lvl 8 checks");
+                            int pickleCount = checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox);
+                            if (pickleCount>=64) {
+                                System.out.println("Pickles: " + pickleCount);
+                                if (checker.getBlockCountInBox(Blocks.WHITE_WOOL,woolBox)>=60) {
+                                    //System.out.println("Found wool");
+                                    if(spawn.getX()<treasureX+48&&spawn.getX()>treasureX-48&&spawn.getZ()<treasureZ+48&&spawn.getZ()>treasureZ-48) {
                                         System.out.println("Seed: "+worldSeed);
                                         csv.append(worldSeed + "," + nearStructs[index].getOutpost().getX() + "," + nearStructs[index].getOutpost().getZ() + "," + nearStructs[index].getTreasure().toBlockPos().getX() + 9 + "," + nearStructs[index].getTreasure().toBlockPos().getZ() + 9 + "\n");
+                                        csv.flush();
                                     }
-                                    System.out.println("Didn't find spawn");
+                                    //System.out.println("Didn't find spawn");
                                 }
-                                System.out.println("Didn't find wool");
+                                //System.out.println("Didn't find wool");
                             }
-                            System.out.println("Didn't find pickles");
+                            //System.out.println("Didn't find pickles");
                         }
                         index++;
                     }
                 }
 
-                //System.out.println("reached flushing");
+                System.out.println("reached flushing");
                 csv.flush();
                 csv.close();
             } catch (Exception e) {

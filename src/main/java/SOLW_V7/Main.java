@@ -4,6 +4,7 @@ import kaptainwutax.featureutils.structure.BuriedTreasure;
 import kaptainwutax.featureutils.structure.PillagerOutpost;
 import kaptainwutax.mcutils.rand.ChunkRand;
 import kaptainwutax.mcutils.version.MCVersion;
+import nl.jellejurre.seedchecker.SeedCheckerSettings;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,6 +18,7 @@ public class Main {
     static PillagerOutpost pillagerOutpost = new PillagerOutpost(MCVersion.v1_17); //wutax outpost object
     static BuriedTreasure buriedTreasure = new BuriedTreasure(MCVersion.v1_17); //wutax buried treasure object
     public static void main(String[] args) {
+        SeedCheckerSettings.initialise();
         pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 
         for (int i = 0; i < 100; i++) {
