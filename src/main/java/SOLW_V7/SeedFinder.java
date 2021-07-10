@@ -32,21 +32,16 @@ public class SeedFinder implements Runnable{
 
     @Override
     public void run() {
-        CPos[] buriedTreasures = new CPos[256]; //stores the values of the buried treasures in each of the 256 chunks of a structure seed
-        CPos[] pillagerOutposts = new CPos[4]; //stores the values of the pillager outposts in 3 regions
-        NearStructs[] nearStructs = new NearStructs[100]; //NearStructs class which stores the coordinates of the outpost, buried treasure, and distance
-        int buriedTreasureIndex = 0; //indices for arrays
+        CPos[] pillagerOutposts = new CPos[4];
+        NearStructs[] nearStructs = new NearStructs[100];
         int pillagerOutpostIndex = 0;
         int closeStructuresIndex = 0;
-
-        //System.out.print(","); //notifies that the program has started a new structure seed
         for (int x = -1; x<1;x++) {
             for (int z = -1; x<1; x++) {
                 CPos pos = pillagerOutpost.getInRegion(structureSeed, x, z, cr);
                 if (pos != null) {
                     if (pos.toBlockPos().getX() < 257 && pos.toBlockPos().getX() > -256 && pos.toBlockPos().getZ() < 257 && pos.toBlockPos().getZ() > -256) {
                         pillagerOutposts[pillagerOutpostIndex] = pos;
-                        //System.out.print(pillagerOutposts[pillagerOutpostIndex] + ", ");
                         pillagerOutpostIndex++;
                     }
                 }
@@ -77,9 +72,7 @@ public class SeedFinder implements Runnable{
                     OverworldBiomeSource biomeSource = new OverworldBiomeSource(MCVersion.v1_17, worldSeed);
                     int index = 0;
                     while (nearStructs[index] != null) {
-                        //System.out.println("Initing spawnability checks");
                         if (pillagerOutpost.canSpawn(nearStructs[index].getOutpost().toChunkPos(), biomeSource) && buriedTreasure.canSpawn(nearStructs[index].getTreasure(), biomeSource)) {
-                            //System.out.println("Found spawnability");
                             int treasureZ = nearStructs[index].getTreasure().toBlockPos().getZ()+9;
                             int treasureX = nearStructs[index].getTreasure().toBlockPos().getX()+9;
                             int outpostX = nearStructs[index].getOutpost().getX();
@@ -88,28 +81,22 @@ public class SeedFinder implements Runnable{
                             Box pickleBox = new Box(treasureX-72, 36, treasureZ-72,treasureX+72, 63, treasureZ+72);
                             Box woolBox = new Box(outpostX-48, 63, outpostZ-48,outpostX+48, 100, outpostZ+48);
                             BPos spawn = biomeSource.getSpawnPoint();
-                            //System.out.println("Initing lvl 8 checks");
                             int pickleCount = checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox);
                             if (pickleCount>=64) {
-                                System.out.println("Pickles: " + pickleCount);
                                 if (checker.getBlockCountInBox(Blocks.WHITE_WOOL,woolBox)>=60) {
-                                    //System.out.println("Found wool");
                                     if(spawn.getX()<treasureX+48&&spawn.getX()>treasureX-48&&spawn.getZ()<treasureZ+48&&spawn.getZ()>treasureZ-48) {
+                                        //This is the final output statements, change whatever fits for the cluster here
                                         System.out.println("Seed: "+worldSeed);
                                         csv.append(worldSeed + "," + nearStructs[index].getOutpost().getX() + "," + nearStructs[index].getOutpost().getZ() + "," + nearStructs[index].getTreasure().toBlockPos().getX() + 9 + "," + nearStructs[index].getTreasure().toBlockPos().getZ() + 9 + "\n");
                                         csv.flush();
+                                        //end of output statements
                                     }
-                                    //System.out.println("Didn't find spawn");
                                 }
-                                //System.out.println("Didn't find wool");
                             }
-                            //System.out.println("Didn't find pickles");
                         }
                         index++;
                     }
                 }
-
-                System.out.println("reached flushing");
                 csv.flush();
                 csv.close();
             } catch (Exception e) {
