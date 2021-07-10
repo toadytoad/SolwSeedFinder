@@ -1,7 +1,5 @@
 package SOLW_V7;
 
-
-import kaptainwutax.biomeutils.biome.Biome;
 import kaptainwutax.biomeutils.biome.Biomes;
 import kaptainwutax.biomeutils.layer.water.OceanTemperatureLayer;
 import kaptainwutax.biomeutils.source.OverworldBiomeSource;
