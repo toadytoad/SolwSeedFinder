@@ -78,7 +78,7 @@ public class SeedFinder implements Runnable{
                             int outpostX = nearStructs[index].getOutpost().getX();
                             int outpostZ = nearStructs[index].getOutpost().getZ();
                             SeedChecker checker = new SeedChecker(worldSeed, 8, SeedCheckerDimension.OVERWORLD);
-                            Box pickleBox = new Box(treasureX-72, 36, treasureZ-72,treasureX+72, 63, treasureZ+72);
+                            Box pickleBox = new Box(treasureX-80, 36, treasureZ-80,treasureX+80, 63, treasureZ+80);
                             Box woolBox = new Box(outpostX-48, 63, outpostZ-48,outpostX+48, 100, outpostZ+48);
                             BPos spawn = biomeSource.getSpawnPoint();
                             int pickleCount = checker.getBlockCountInBox(Blocks.SEA_PICKLE, pickleBox);
