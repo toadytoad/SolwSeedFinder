@@ -27,7 +27,7 @@ public class Main {
 
     public static void StartNext(){
         synchronized (lock) {
-            StructureSeed = ThreadLocalRandom.current().nextLong(-281474976710656L, 281474976710656L);
+            StructureSeed = ThreadLocalRandom.current().nextLong(0, 281474976710656L);
             pool.execute(new SeedFinder(StructureSeed));
         }
     }
